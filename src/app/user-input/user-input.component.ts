@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import type { InvestmentInput } from '../investment-input.nodel';
+import { InvestmentService } from '../investment.service';
 
 @Component({
   selector: 'app-user-input',
@@ -10,21 +11,30 @@ import type { InvestmentInput } from '../investment-input.nodel';
   styleUrl: './user-input.component.css'
 })
 export class UserInputComponent {
-  @Output() calculate = new EventEmitter<InvestmentInput>();
+  
+  initialInvestment = signal('0');
+  annualInvestment = signal('0');
+  expectedReturn = signal('5');
+  duration = signal('10');
 
-  initialInvestment = '0';
-  annualInvestment = '0';
-  expectedReturn = '5';
-  duration = '10';
+  constructor(private investmentService: InvestmentService){
+
+  }
 
   onSubmit(){
-    this.calculate.emit({
-      initialInvestment: +this.initialInvestment,
-      duration: +this.duration,
-      expectedReturn: +this.expectedReturn,
-      annualInvestment: +this.annualInvestment
+    this.investmentService.calculateInvestmentResults({
+      initialInvestment: +this.initialInvestment(),
+      duration: +this.duration(),
+      expectedReturn: +this.expectedReturn(),
+      annualInvestment: +this.annualInvestment()
     });
 
+    // Optional Reset the UI back to 0 - demo signal set
+    this.initialInvestment.set('0');
+    this.annualInvestment.set('0');
+    this.expectedReturn.set('0');
+    this.duration.set('10');
+  
     console.log("user-input.component.ts - onSubmit()");
     console.log("Intial Investment = " + this.initialInvestment);
     console.log("Annual Investment = " + this.annualInvestment);
